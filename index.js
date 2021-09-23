@@ -11,6 +11,29 @@
 
   function setEventListeners() {
     qsa("#controls input").forEach(input => input.addEventListener("input", updateInput))
+    id("sort").addEventListener("submit", sortData)
+  }
+
+  function sortData(form) {
+    form.preventDefault();
+    insertionSort();
+  }
+
+  function insertionSort() {
+    for (let i=1; i < numbers.length; ++i) {
+      for (let j=i; j > -1; --j) {
+        if (numbers[j-1] > numbers[j]) {
+          let tmp = numbers[j-1];
+          numbers[j-1] = numbers[j];
+          numbers[j] = tmp;
+        } else {
+          break;
+        }
+      }
+    }
+        
+    createDiv();
+    console.log(numbers);
   }
 
   function updateInput(input) {
@@ -36,16 +59,16 @@
   }
 
   function createDiv() {
-
-    for (let i=1; i < id("graph").children.length; ++i) {
-      id("graph").children[i].remove();
-    }
+        d3.select("#graph")
+          .selectAll("div").remove();
 
     const graph = d3.select("#graph")
       .selectAll("div")
       .data(numbers);
 
-    graph.enter()
+    graph.join(
+      enter => 
+        enter
          .append("div")
          .style("background-color",
                 data => (
@@ -57,11 +80,16 @@
         )
         .style("width", () => (
           (30 / qsa("#controls input")[0].value)) + "vw"
-        );
-
-    graph.exit().remove();
-
+        ),
+      update =>
+        update.style("width", () => (
+          (30 / qsa("#controls input")[0].value)) + "vw"
+        ),
+      exit =>
+        exit.remove()
+    );
   }
+
 
   /* Helper Functions */
 
