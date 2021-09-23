@@ -16,29 +16,59 @@
 
   function sortData(form) {
     form.preventDefault();
-    insertionSort();
+
+    if( id("insertion").checked) {
+      insertionSort();
+    }
+
+    if( id("bubble").checked) {
+      bubbleSort();
+    }
   }
 
-  function insertionSort() {
+  async function bubbleSort() {
+    let swapped = false;
+
+    do {
+      for (let i=1; i < numbers.length; ++i) {
+        if (numbers[i-1] > numbers[i]) {
+          let tmp = numbers[i-1];
+          numbers[i-1] = numbers[i];
+          numbers[i] = tmp;
+          swap(id("graph").children[i], id("graph").children[i+1]);
+
+          swapped = true;
+          await sleep(10);
+        }
+      }
+    } while (swapped)
+  }
+
+  async function insertionSort() {
     for (let i=1; i < numbers.length; ++i) {
       for (let j=i; j > -1; --j) {
         if (numbers[j-1] > numbers[j]) {
           let tmp = numbers[j-1];
           numbers[j-1] = numbers[j];
           numbers[j] = tmp;
+          swap(id("graph").children[j], id("graph").children[j+1]);
+
+          await sleep(10);
         } else {
           break;
         }
       }
     }
         
-    createDiv();
     console.log(numbers);
   }
 
   function updateInput(input) {
     changeInput(input);
-    createDiv();
+
+    if (input.target.parentNode.children[0].textContent.split(":")[0] !== "Delay") {
+      createDiv();
+    }
   }
 
   function changeInput(input) {
@@ -58,36 +88,69 @@
     return ret;
   }
 
+  // function createDiv() {
+  //       d3.select("#graph")
+  //         .selectAll("div").remove();
+
+  //   const graph = d3.select("#graph")
+  //     .selectAll("div")
+  //     .data(numbers);
+
+  //   graph.join(
+  //     enter => 
+  //       enter
+  //        .append("div")
+  //        .style("background-color",
+  //               data => (
+  //                 "#" + Math.floor(
+  //                 (data / qsa("#controls input")[1].value)*16777215).toString(16)
+  //         ))
+  //       .style("height", data => (
+  //         (data / qsa("#controls input")[1].value) * 70) + "vh"
+  //       )
+  //       .style("width", () => (
+  //         (30 / qsa("#controls input")[0].value)) + "vw"
+  //       ),
+  //     update =>
+  //       update.transition()
+  //             .duration(750),
+  //     exit =>
+  //       exit.remove()
+  //   );
+  // }
+
   function createDiv() {
-        d3.select("#graph")
-          .selectAll("div").remove();
+    id("graph").innerHTML = "";
 
-    const graph = d3.select("#graph")
-      .selectAll("div")
-      .data(numbers);
+    let header = gen("h1")
+    header.textContent = "Welcome To Number Sorter"
+    id("graph").appendChild(header);
 
-    graph.join(
-      enter => 
-        enter
-         .append("div")
-         .style("background-color",
-                data => (
-                  "#" + Math.floor(
-                  (data / qsa("#controls input")[1].value)*16777215).toString(16)
-          ))
-        .style("height", data => (
-          (data / qsa("#controls input")[1].value) * 70) + "vh"
-        )
-        .style("width", () => (
-          (30 / qsa("#controls input")[0].value)) + "vw"
-        ),
-      update =>
-        update.style("width", () => (
-          (30 / qsa("#controls input")[0].value)) + "vw"
-        ),
-      exit =>
-        exit.remove()
-    );
+    for (let i of numbers) {
+      let bar = gen("div");
+      bar.style.backgroundColor = "#" + Math.floor(
+                  (i / qsa("#controls input")[1].value)*16777215).toString(16)
+      bar.style.height = ((i / qsa("#controls input")[1].value) * 70) + "vh";
+
+      bar.style.width = (30 / qsa("#controls input")[0].value) + "vw";
+
+      id("graph").appendChild(bar);
+    }
+  }
+
+  function swap(node1, node2) {
+      const afterNode2 = node2.nextElementSibling;
+      const parent = node2.parentNode;
+      node1.replaceWith(node2);
+      parent.insertBefore(node1, afterNode2);
+  }
+
+  function sleep(delay) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, delay);
+    });
   }
 
 
