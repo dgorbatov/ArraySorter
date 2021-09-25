@@ -24,12 +24,66 @@
     if( id("bubble").checked) {
       bubbleSort();
     }
+
+    if( id("quick").checked) {
+      quickSort();
+    }
+  }
+
+  async function quickSort() {
+    numbers = await quickSortRec(numbers, 0, numbers.length - 1);
+  }
+
+  async function quickSortRec(items, left, right) {
+    let index;
+    if (items.length > 1) {
+        index = partition(items, left, right);
+        createDivFromArray(items);
+        await sleep(10);
+        if (left < index - 1) {
+          await quickSortRec(items, left, index - 1);
+        }
+        if (index < right) {
+          await quickSortRec(items, index, right);
+        }
+    }
+    return items;
+  }
+
+  function partition(items, left, right) {
+    let pivot = items[Math.floor((right + left) / 2)];
+
+    let i = left;
+    let j = right;
+
+    while (i <= j) {
+      while (items[i] < pivot) {
+        i++;
+      }
+
+      while (items[j] > pivot) {
+        j--;
+      }
+
+      if (i <= j) {
+        let tmp = items[i];
+        items[i] = items[j];
+        items[j] = tmp;
+        // swap(id("graph").children[i], id("graph").children[j]);
+
+        i++;
+        j--;
+      }
+    }
+
+    return i;
   }
 
   async function bubbleSort() {
     let swapped = false;
 
     do {
+      swapped = false;
       for (let i=1; i < numbers.length; ++i) {
         if (numbers[i-1] > numbers[i]) {
           let tmp = numbers[i-1];
@@ -59,7 +113,7 @@
         }
       }
     }
-        
+
     console.log(numbers);
   }
 
@@ -88,37 +142,6 @@
     return ret;
   }
 
-  // function createDiv() {
-  //       d3.select("#graph")
-  //         .selectAll("div").remove();
-
-  //   const graph = d3.select("#graph")
-  //     .selectAll("div")
-  //     .data(numbers);
-
-  //   graph.join(
-  //     enter => 
-  //       enter
-  //        .append("div")
-  //        .style("background-color",
-  //               data => (
-  //                 "#" + Math.floor(
-  //                 (data / qsa("#controls input")[1].value)*16777215).toString(16)
-  //         ))
-  //       .style("height", data => (
-  //         (data / qsa("#controls input")[1].value) * 70) + "vh"
-  //       )
-  //       .style("width", () => (
-  //         (30 / qsa("#controls input")[0].value)) + "vw"
-  //       ),
-  //     update =>
-  //       update.transition()
-  //             .duration(750),
-  //     exit =>
-  //       exit.remove()
-  //   );
-  // }
-
   function createDiv() {
     id("graph").innerHTML = "";
 
@@ -127,6 +150,25 @@
     id("graph").appendChild(header);
 
     for (let i of numbers) {
+      let bar = gen("div");
+      bar.style.backgroundColor = "#" + Math.floor(
+                  (i / qsa("#controls input")[1].value)*16777215).toString(16)
+      bar.style.height = ((i / qsa("#controls input")[1].value) * 70) + "vh";
+
+      bar.style.width = (30 / qsa("#controls input")[0].value) + "vw";
+
+      id("graph").appendChild(bar);
+    }
+  }
+
+  function createDivFromArray(items) {
+    id("graph").innerHTML = "";
+
+    let header = gen("h1")
+    header.textContent = "Welcome To Number Sorter"
+    id("graph").appendChild(header);
+
+    for (let i of items) {
       let bar = gen("div");
       bar.style.backgroundColor = "#" + Math.floor(
                   (i / qsa("#controls input")[1].value)*16777215).toString(16)
